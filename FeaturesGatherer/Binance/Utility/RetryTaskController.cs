@@ -1,0 +1,93 @@
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Binance.Utility
+{
+    public class RetryTaskController : IDisposable
+    {
+        #region Public Properties
+
+        public Task Task { get; private set; }
+
+        public int RetryDelayMilliseconds { get; set; } = 5000;
+
+        #endregion Public Properties
+
+        #region Private Fields
+
+        private readonly CancellationTokenSource _cts;
+
+        #endregion Private Fields
+
+        #region Constructors
+
+        public RetryTaskController()
+        {
+            _cts = new CancellationTokenSource();
+        }
+
+        #endregion Constructors
+
+        #region Public Methods
+
+        public void Begin(Func<CancellationToken, Task> action, Action<Exception> onError = null)
+        {
+            Task = Task.Run(async () =>
+            {
+                while (!_cts.IsCancellationRequested)
+                {
+                    try { await action(_cts.Token); }
+                    catch (OperationCanceledException) { }
+                    catch (Exception e)
+                    {
+                        if (!_cts.IsCancellationRequested)
+                        {
+                            onError?.Invoke(e);
+                            OnError(e);
+                        }
+                    }
+
+                    if (!_cts.IsCancellationRequested)
+                    {
+                        await Task.Delay(RetryDelayMilliseconds, _cts.Token);
+                    }
+                }
+            });
+        }
+
+        #endregion Public Methods
+
+        #region Protected Methods
+
+        protected virtual void OnError(Exception e) { }
+
+        #endregion Protected Methods
+
+        #region IDisposable
+
+        private bool _disposed;
+
+        private void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            if (disposing)
+            {
+                _cts?.Cancel();
+                Task?.GetAwaiter().GetResult();
+                _cts?.Dispose();
+            }
+
+            _disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        #endregion IDisposable
+    }
+}

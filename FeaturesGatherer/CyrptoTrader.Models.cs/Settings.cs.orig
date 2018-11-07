@@ -1,0 +1,38 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace CyrptoTrader.Models
+{
+    public class Settings
+    {
+        public int TimeTillCancel { get; set; }
+        public decimal CommissionFee { get; set; }
+        public string APIKey { get; set; }
+        public string Secret { get; set; }
+        public decimal TradeAmount { get; set; }
+        public int PollDelay { get; set; }
+        public int BuyTimeAfterOpenThreshold { get; set; }
+        public bool ShowAnalyzerDetails { get; set; } = true;
+<<<<<<< HEAD
+        public decimal BtcAmount { get; set; } = 0.12m;
+        public bool UseStairStepSelling { get; set; } = false;
+        public decimal StairStepBuffer { get; set; } = 0.0m;
+        public decimal TargetWinPercent { get; set; } = 50.0m;
+=======
+        public bool PrintDetails { get; set; } = true;
+>>>>>>> OptimizerService
+
+        public long TimeThatCanBuyUntil
+        {
+            get
+            {
+                return 1000 * 60 * (30 - BuyTimeAfterOpenThreshold);
+            }
+        }
+
+        public int DaysForAnalyzer { get; set; } = 10;
+        public bool UseStairStepMethod { get; set; } = false;
+        public bool UseBollingerCopies { get; set; } = false;
+    }
+}
