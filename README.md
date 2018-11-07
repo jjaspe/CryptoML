@@ -1,4 +1,7 @@
 # CryptoML
+
+*You need Octave, preferable Octave UI
+
 1. Start your mongo db
 2. Modify "directory" value in appSettings in FeaturesGatherer to point to your ML Trainer folder
 3. Run FeaturesGatherer
